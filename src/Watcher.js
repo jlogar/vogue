@@ -54,7 +54,7 @@ Watcher.prototype.startWatching = function(filename) {
     // already watching this file, so just increment the client count.
     this.fileWatcherCount[filename]++;
   } else {
-    fs.watchFile(
+    fs.watch(
       filename,
       { persistent: true, interval: 50 },
       fileChanged.bind(this)
