@@ -5,8 +5,61 @@
       hop = Object.prototype.hasOwnProperty,
       head = document.getElementsByTagName("head")[0];
 
+  /**
+   * Get the link's base URL.
+   *
+   * @param {String} href The URL to check.
+   * @returns {String|Boolean} The base URL, or false if no matches found.
+   */
+  function getBase(href) {
+    var base, j;
+    for (j = 0; j < script.bases.length; j += 1) {
+      base = script.bases[j];
+      if (href.indexOf(base) > -1) {
+        return href.substr(base.length);
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Analyzes the scripts in the html.
+   */
+  var scriptsAnalyzer = (function() {
+    var that = {};
+    var isLocal = function(scriptLink) {
+        if (typeof scriptLink !== 'string') return false;
+        var i, isExternal = true;
+        for (i = 0; i < script.bases.length; i += 1) {
+          if (scriptLink.indexOf(script.bases[i]) > -1) {
+            isExternal = false;
+            break;
+          }
+        }
+        return !(isExternal && scriptLink.match(/^https?:/));
+    };
+    that.getLocalScripts = function () {
+        var i,
+            scripts = document.getElementsByTagName('script'),
+            localScripts = {};
+        for(i = 0; i < scripts.length; i += 1) {
+            if (!isLocal(scripts[i].src)) {
+                continue;
+            }
+            // Link is local, get the base URL.
+            href = getBase(scripts[i].src);
+            if (href !== false) {
+                localScripts[href] = scripts[i];
+            }
+        }
+        return localScripts;
+    };
+    return that;
+  })();
+
   function vogue() {
     var stylesheets,
+        scripts,
         socket = io.connect(script.rootUrl);
 
     /**
@@ -100,23 +153,6 @@
         return link.getAttribute("media") === "print";
       }
 
-      /**
-       * Get the link's base URL.
-       *
-       * @param {String} href The URL to check.
-       * @returns {String|Boolean} The base URL, or false if no matches found.
-       */
-      function getBase(href) {
-        var base, j;
-        for (j = 0; j < script.bases.length; j += 1) {
-          base = script.bases[j];
-          if (href.indexOf(base) > -1) {
-            return href.substr(base.length);
-          }
-        }
-        return false;
-      }
-
       function getProperty(property) {
         return this[property];
       }
@@ -162,10 +198,11 @@
     }
 
     stylesheets = getLocalStylesheets();
+    scripts = scriptsAnalyzer.getLocalScripts();
     socket.on("connect", watchAllStylesheets);
     socket.on("update", handleMessage);
   }
-
+  
   /**
    * Load a script into the page, and call a callback when it is loaded.
    *
