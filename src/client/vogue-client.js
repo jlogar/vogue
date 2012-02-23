@@ -75,7 +75,7 @@
         }
       }
     }
-	/**
+    /**
      * Watch for all available scripts.
      */
     function watchAllScripts() {
@@ -115,18 +115,18 @@
       }
     }
 
-	/**
+    /**
      * Check if the href is a stylesheet.
      *
      * @param {String} href The URL of the stylesheet.
-	 * @returns {Boolean} true if the url is a stylesheet, false otherwise.
+     * @returns {Boolean} true if the url is a stylesheet, false otherwise.
      */
-	function isStyleSheet(href){
-		if (href.indexOf(".css") >= 0)
-			return true;
-		else
-			return false;
-	}
+    function isStyleSheet(href){
+        if (href.indexOf(".css") >= 0)
+            return true;
+        else
+            return false;
+    }
     /**
      * Handle messages from socket.io, and load the appropriate stylesheet or scripts.
      *
@@ -134,13 +134,13 @@
      * @param message.href The url to be reloaded.
      */
     function handleMessage(message) {
-	  //reload stylesheets in place
+      //reload stylesheets in place
       if (isStyleSheet(message.href)) {
-		reloadStylesheet(message.href);
-		return;
-	  }
-	  //need to reload whole page... hope that the user added this script locally
-	  document.location.reload();
+        reloadStylesheet(message.href);
+        return;
+      }
+      //need to reload whole page... hope that the user added this script locally
+      document.location.reload();
     }
 
     /**
